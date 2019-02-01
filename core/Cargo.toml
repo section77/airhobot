@@ -1,0 +1,11 @@
+[package]
+name = "airhobot"
+version = "0.1.0"
+authors = ["j-keck <jhyphenkeck@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+cv = { path = "../cv" }
+stepper = { path = "../stepper" }
+log = "0.4"
+env_logger = "0.6"

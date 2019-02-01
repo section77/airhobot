@@ -1,0 +1,8 @@
+[package]
+name = "cv"
+version = "0.1.0"
+authors = ["j-keck <jhyphenkeck@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+rustcv = { git = "https://github.com/j-keck/rustcv" }
