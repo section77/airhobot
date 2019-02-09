@@ -32,6 +32,7 @@ let
 
   my-opencv3 = pkgs.opencv3.override {
     enableGtk2 = true;
+    enableFfmpeg = true;
   };
 
 in pkgs.mkShell rec {
