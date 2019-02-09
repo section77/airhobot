@@ -1,5 +1,8 @@
-use super::ToScalar;
 use rustcv::core::Scalar;
+
+pub trait ToScalar {
+    fn to_scalar(&self) -> Scalar;
+}
 
 /// Represents a RGB color
 #[derive(Debug, PartialEq)]
@@ -10,8 +13,28 @@ pub struct RGB {
 }
 
 impl RGB where {
-    pub fn new(r: u8, g: u8, b: u8) -> RGB {
+    pub fn new(r: u8, g: u8, b: u8) -> Self {
         RGB { r, g, b }
+    }
+
+    pub fn red() -> Self {
+        Self::new(255, 0, 0)
+    }
+
+    pub fn green() -> Self {
+        Self::new(0, 255, 0)
+    }
+
+    pub fn blue() -> Self {
+        Self::new(0, 0, 255)
+    }
+
+    pub fn black() -> Self {
+        Self::new(0, 0, 0)
+    }
+
+    pub fn white() -> Self {
+        Self::new(255, 255, 255)
     }
 }
 
@@ -73,7 +96,7 @@ pub struct HSV {
 impl HSV where {
     pub fn new(h: u8, s: u8, r: u8) -> Result<HSV, String> {
         match (h, s, r) {
-            _ if h > 179 => Err(format!("invalid 'hue' - valid: 0 - 179, given: {}", h)),
+            _ if h > 179 => Err(format!("invalid 'hue' value - valid: 0 - 179, given: {}", h)),
             _ => Ok(HSV { h, s, r }),
         }
     }
@@ -91,6 +114,31 @@ impl ToScalar for HSV {
             val3: self.r as f64,
             val4: 0.0,
         }
+    }
+}
+
+pub struct HSVRange {
+    min: HSV,
+    max: HSV,
+}
+impl HSVRange {
+    pub fn new(
+        h_range: std::ops::Range<u8>,
+        s_range: std::ops::Range<u8>,
+        v_range: std::ops::Range<u8>,
+    ) -> Result<Self, Box<dyn std::error::Error>> {
+        Ok(HSVRange {
+            min: HSV::new(h_range.start, s_range.start, v_range.start)?,
+            max: HSV::new(h_range.end, s_range.end, v_range.end)?,
+        })
+    }
+
+    pub fn min(&self) -> &HSV {
+        &self.min
+    }
+
+    pub fn max(&self) -> &HSV {
+        &self.max
     }
 }
 

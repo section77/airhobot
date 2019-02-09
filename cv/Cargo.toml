@@ -6,3 +6,5 @@ edition = "2018"
 
 [dependencies]
 rustcv = { git = "https://github.com/j-keck/rustcv" }
+log = "0.4.6"
+
