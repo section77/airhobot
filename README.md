@@ -20,3 +20,4 @@
   * orange ist dem rand zu ähnlich
   * rot sind auch feld makrierungen
 
+[Beispielcode](core/examples/detect-pucks.rs)
