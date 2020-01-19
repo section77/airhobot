@@ -7,7 +7,7 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use stepper::*;
 
-fn main() -> Result<(), Box<Error>> {
+fn main() -> Result<(), Box<dyn Error>> {
     Builder::from_env(Env::default().default_filter_or("info"))
         .default_format_timestamp_nanos(true)
         .init();

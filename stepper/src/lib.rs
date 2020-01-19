@@ -48,7 +48,7 @@ impl fmt::Display for Stepper {
 
 impl Stepper {
     /// Initialize the stepper
-    pub fn new(name: &str, e: EnablePin, s: StepPin, d: DirectionPin) -> Result<Stepper, Box<Error>> {
+    pub fn new(name: &str, e: EnablePin, s: StepPin, d: DirectionPin) -> Result<Stepper, Box<dyn Error>> {
         let pin_enable = gpio::Gpio::new()?.get(e.0)?.into_output();
         let pin_step = gpio::Gpio::new()?.get(s.0)?.into_output();
         let pin_direction = gpio::Gpio::new()?.get(d.0)?.into_output();
