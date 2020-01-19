@@ -30,7 +30,7 @@ let
   rust = rust-channel.rust.override { extensions = [  "rustfmt-preview" "clippy-preview" "rust-analysis" ]; };
 
 
-  my-opencv3 = pkgs.opencv3.override {
+  my-opencv4 = pkgs.opencv4.override {
     enableGtk2 = true;
     enableFfmpeg = true;
   };
@@ -39,7 +39,7 @@ in pkgs.mkShell rec {
 
   buildInputs = with pkgs; [
     clang
-    my-opencv3
+    my-opencv4
     rust
     pkgconfig openssl
     python3
