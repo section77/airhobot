@@ -1,7 +1,6 @@
-use rustcv::core::Point as RustCVPoint;
 use std::iter;
-mod utils;
-pub use utils::*;
+use std::iter::IntoIterator;
+use std::slice::Iter;
 mod mat;
 pub use mat::*;
 mod colors;
@@ -14,7 +13,15 @@ mod imageio;
 pub use imageio::*;
 mod err;
 pub use err::*;
+use opencv::{
+    core::Point as OpencvPoint,
+    prelude::Vector,
+    types::{VectorOfPoint, VectorOfVectorOfPoint},
+};
 
+type Result<T> = std::result::Result<T, CVErr>;
+
+#[derive(Debug, Clone, Copy)]
 pub enum CVType {
     /// 8 bit unsigned, single channel
     CV8UC1 = 0,
@@ -27,14 +34,8 @@ pub enum CVType {
 }
 
 impl CVType {
-    fn to_rustcv(&self) -> rustcv::core::CvType {
-        use CVType::*;
-        match &self {
-            CV8UC1 => rustcv::core::CvType::Cv8UC1,
-            CV8SC1 => rustcv::core::CvType::Cv8SC1,
-            CV8UC3 => rustcv::core::CvType::Cv8UC3,
-            CV8SC3 => rustcv::core::CvType::Cv8SC3,
-        }
+    fn unpack(&self) -> i32 {
+        *self as i32
     }
 }
 
@@ -45,17 +46,17 @@ pub struct Point {
     pub y: i32,
 }
 
-impl Point where {
+impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Point { x, y }
     }
 
-    fn from_rustcv(p: RustCVPoint) -> Self {
+    fn pack(p: opencv::core::Point) -> Self {
         Self::new(p.x, p.y)
     }
 
-    fn to_rustcv(&self) -> RustCVPoint {
-        RustCVPoint { x: self.x, y: self.y }
+    fn unpack(&self) -> opencv::core::Point {
+        opencv::core::Point_ { x: self.x, y: self.y }
     }
 
     pub fn dist(&self, other: &Point) -> f64 {
@@ -72,7 +73,7 @@ pub struct Rect {
 }
 
 impl Rect {
-    fn from_rustcv(rect: rustcv::core::Rect) -> Self {
+    fn pack(rect: opencv::core::Rect) -> Self {
         Rect {
             x: rect.x,
             y: rect.y,
@@ -81,8 +82,8 @@ impl Rect {
         }
     }
 
-    fn to_rustcv(&self) -> rustcv::core::Rect {
-        rustcv::core::Rect {
+    fn unpack(&self) -> opencv::core::Rect {
+        opencv::core::Rect_ {
             x: self.x,
             y: self.y,
             width: self.width,
@@ -91,110 +92,70 @@ impl Rect {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
-pub struct Contour(Vec<Point>);
+pub struct Contour(VectorOfPoint);
 impl Contour {
-    fn from_rustcv(contour: rustcv::core::Contour) -> Self {
-        Contour(
-            // (0..(contour.length as isize))
-            //     .map(|i| Point::from_rustcv(unsafe { *contour.points.offset(i) }))
-            //     .collect(),
-            unsafe { std::slice::from_raw_parts(contour.points, contour.length as usize) }
-                .iter()
-                .map(|p| Point::from_rustcv(*p))
-                .collect(),
-        )
+    fn pack(contour: VectorOfPoint) -> Self {
+        Contour(contour)
     }
 
-    fn to_rustcv(&self) -> rustcv::core::Points {
-        let mut points: Vec<rustcv::core::Point> = self.0.iter().map(|p| p.to_rustcv()).collect();
+    fn unpack(&self) -> &VectorOfPoint {
+        &self.0
+    }
 
-        points.shrink_to_fit();
-        let ptr = points.as_mut_ptr();
-        std::mem::forget(points);
-
-        rustcv::core::Points {
-            points: ptr, // points.as_mut_ptr(),
-            length: self.0.len() as i32,
-        }
+    pub fn points(&self) -> Vec<Point> {
+        self.0.iter().map(Point::pack).collect()
     }
 
     pub fn len(&self) -> usize {
         self.0.len()
     }
 
-    pub fn area(&self) -> f64 {
-        rustcv::imgproc::contour_area(self.to_rustcv())
+    pub fn area(&self) -> Result<f64> {
+        let closed = false;
+        Ok(opencv::imgproc::contour_area(&self.unpack(), closed)?)
     }
 
-    pub fn arc_length(&self, closed: bool) -> f64 {
-        let mut points: Vec<rustcv::core::Point> = self.0.iter().map(|p| p.to_rustcv()).collect();
-        rustcv::imgproc::arc_length(&mut points, closed)
+    pub fn arc_length(&self) -> Result<f64> {
+        let closed = false;
+        Ok(opencv::imgproc::arc_length(&self.unpack(), closed)?)
     }
 
-    pub fn bounding_rect(&self) -> Rect {
-        Rect::from_rustcv(rustcv::imgproc::bounding_rect(self.to_rustcv()))
+    pub fn bounding_rect(&self) -> Result<Rect> {
+        Ok(Rect::pack(opencv::imgproc::bounding_rect(&self.unpack())?))
     }
 
-    pub fn approx_poly_dp(&self, epsilon: f64, closed: bool) -> Self {
-        Contour::from_rustcv(rustcv::imgproc::approx_poly_dp(self.to_rustcv(), epsilon, closed))
+    pub fn approx_poly_dp(&self, epsilon: f64, closed: bool) -> Result<Self> {
+        let mut out = VectorOfPoint::new();
+        opencv::imgproc::approx_poly_dp(self.unpack(), &mut out, epsilon, closed)?;
+        Ok(Contour::pack(out))
     }
 
-    pub fn center(&self) -> Point {
-        let r = self.bounding_rect();
-        Point::new(r.x + (r.width / 2), r.y + (r.height / 2))
+    pub fn center(&self) -> Result<Point> {
+        let r = self.bounding_rect()?;
+        Ok(Point::new(r.x + (r.width / 2), r.y + (r.height / 2)))
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
-pub struct Contours(Vec<Contour>);
+pub struct Contours(VectorOfVectorOfPoint);
 impl Contours {
-    pub fn new() -> Self {
-        Contours(Vec::new())
+    fn pack(contours: VectorOfVectorOfPoint) -> Self {
+        Contours(contours)
     }
 
-    pub fn add(&mut self, contour: Contour) {
-        self.0.push(contour);
+    fn unpack(&self) -> &VectorOfVectorOfPoint {
+        &self.0
     }
 
-    fn from_rustcv(contours: rustcv::core::Contours) -> Self {
-        Contours(
-            unsafe { std::slice::from_raw_parts(contours.contours, contours.length as usize) }
-                .iter()
-                .map(|p| Contour::from_rustcv(*p))
-                .collect(),
-        )
-    }
-
-    fn to_rustcv(&self) -> rustcv::core::Contours {
-        let mut contours: Vec<rustcv::core::Contour> = self.0.iter().map(|p| p.to_rustcv()).collect();
-
-        contours.shrink_to_fit();
-        let ptr = contours.as_mut_ptr();
-        std::mem::forget(contours);
-
-        rustcv::core::Contours {
-            contours: ptr, //  contours.as_mut_ptr(),
-            length: self.0.len() as i32,
-        }
-    }
-
-    pub fn iter(&self) -> std::slice::Iter<Contour> {
-        self.0.iter()
-    }
-
-    pub fn into_iter(&self) -> std::vec::IntoIter<Contour> {
-        self.0.clone().into_iter()
+    pub fn iter(&self) -> impl Iterator<Item = Contour> + '_ {
+        self.0.iter().into_iter().map(|v| Contour::pack(v))
     }
 }
 
 impl iter::FromIterator<Contour> for Contours {
     fn from_iter<I: IntoIterator<Item = Contour>>(iter: I) -> Self {
-        let mut contours = Contours::new();
-        for c in iter {
-            contours.add(c);
-        }
-        contours
+        let iter_points = iter.into_iter().map(|c| c.0);
+        let vec_points: VectorOfVectorOfPoint = Vector::from_iter(iter_points);
+        Contours::pack(vec_points)
     }
 }
 
@@ -213,8 +174,8 @@ mod tests {
 
     #[test]
     pub fn test_dist() {
-        let p1 = Point::new(3, 2);
-        let p2 = Point::new(9, 7);
+        let p1 = Point::pack(3, 2);
+        let p2 = Point::pack(9, 7);
 
         assert_delta(p1.dist(&p2), 7.8, 0.1);
         assert_delta(p1.dist(&p2), p2.dist(&p1), 0.1);

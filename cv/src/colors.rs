@@ -1,7 +1,7 @@
-use rustcv::core::Scalar;
+use opencv::core::Scalar as OpencvScalar;
 
-pub trait ToScalar {
-    fn to_scalar(&self) -> Scalar;
+pub trait ToOpencvScalar {
+    fn to_opencv_scalar(&self) -> OpencvScalar;
 }
 
 /// Represents a RGB color
@@ -12,7 +12,7 @@ pub struct RGB {
     b: u8,
 }
 
-impl RGB where {
+impl RGB {
     pub fn new(r: u8, g: u8, b: u8) -> Self {
         RGB { r, g, b }
     }
@@ -38,14 +38,9 @@ impl RGB where {
     }
 }
 
-impl ToScalar for RGB where {
-    fn to_scalar(&self) -> Scalar {
-        Scalar {
-            val1: self.b as f64,
-            val2: self.g as f64,
-            val3: self.r as f64,
-            val4: 0.0,
-        }
+impl ToOpencvScalar for RGB {
+    fn to_opencv_scalar(&self) -> OpencvScalar {
+        OpencvScalar::new(self.b as f64, self.g as f64, self.r as f64, 0.0)
     }
 }
 
@@ -63,20 +58,15 @@ pub struct BGR {
     r: u8,
 }
 
-impl BGR where {
+impl BGR {
     pub fn new(b: u8, g: u8, r: u8) -> BGR {
         BGR { b, g, r }
     }
 }
 
-impl ToScalar for BGR where {
-    fn to_scalar(&self) -> Scalar {
-        Scalar {
-            val1: self.b as f64,
-            val2: self.g as f64,
-            val3: self.r as f64,
-            val4: 0.0,
-        }
+impl ToOpencvScalar for BGR {
+    fn to_opencv_scalar(&self) -> OpencvScalar {
+        OpencvScalar::new(self.b as f64, self.g as f64, self.r as f64, 0.0)
     }
 }
 
@@ -93,7 +83,7 @@ pub struct HSV {
     r: u8,
 }
 
-impl HSV where {
+impl HSV {
     pub fn new(h: u8, s: u8, r: u8) -> Result<HSV, String> {
         match (h, s, r) {
             _ if h > 179 => Err(format!("invalid 'hue' value - valid: 0 - 179, given: {}", h)),
@@ -106,14 +96,9 @@ impl HSV where {
     }
 }
 
-impl ToScalar for HSV {
-    fn to_scalar(&self) -> Scalar {
-        Scalar {
-            val1: self.h as f64,
-            val2: self.s as f64,
-            val3: self.r as f64,
-            val4: 0.0,
-        }
+impl ToOpencvScalar for HSV {
+    fn to_opencv_scalar(&self) -> OpencvScalar {
+        OpencvScalar::new(self.h as f64, self.s as f64, self.r as f64, 0.0)
     }
 }
 

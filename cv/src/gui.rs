@@ -1,17 +1,16 @@
 use super::*;
-use rustcv::highgui::*;
+use opencv::highgui;
 use std::time;
 
 /// Simple GUI
 pub struct GUI {
-    win: Window,
+    name: String,
 }
 
-impl GUI where {
+impl GUI {
     pub fn new(name: &str) -> GUI {
-        GUI {
-            win: Window::new(name, WindowFlag::FreeRatio).unwrap(),
-        }
+        highgui::named_window(name, 1).unwrap();
+        GUI { name: name.to_string() }
     }
 
     pub fn show<T>(&self, mat: &Mat<T>) {
@@ -21,11 +20,9 @@ impl GUI where {
 
     // Show the given frame for the given duration
     pub fn show_for<T>(&self, mat: &Mat<T>, dur: time::Duration) {
-        self.win.show(mat.to_rustcv());
+        highgui::imshow(&self.name, &mat.unwrap());
 
-        // dur.as_millis() is only in nightly
-        let millis = dur.as_secs() * 1000_u64 + dur.subsec_millis() as u64;
-        self.win
-            .wait_key(i32::try_from(millis).expect("invalid millis given for GUI.show_for"));
+        let millis = dur.as_millis() as i32;
+        highgui::wait_key(millis);
     }
 }

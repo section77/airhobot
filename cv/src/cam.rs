@@ -1,10 +1,10 @@
 use crate::*;
-use rustcv::videoio::VideoCapture;
+use opencv::videoio;
 
 /// Video capturing from cameras.
 #[derive(Debug)]
 pub struct Cam {
-    cam: VideoCapture,
+    cam: videoio::VideoCapture,
 }
 
 impl Cam {
@@ -15,8 +15,8 @@ impl Cam {
 
     /// Opens the cam with the given 'device_id'
     pub fn new_for_device_id(device_id: i32) -> Result<Cam, CVErr> {
-        let cam = VideoCapture::new();
-        if cam.open_device(device_id) {
+        let cam = videoio::VideoCapture::new_with_backend(device_id, videoio::CAP_ANY);
+        if videoio::VideoCapture::is_opened(&cam)? {
             Ok(Cam { cam })
         } else {
             Err(CVErr::cam_err(format!(
@@ -27,7 +27,10 @@ impl Cam {
     }
 
     /// Try to grab a image from the cam
-    pub fn grab(&mut self) -> Option<Mat<BGR>> {
+    pub fn grab(&mut self) -> Result<Mat<BGR>> {
+        let mut frame = opencv::core::Map::default()?;
+        self.cam.read(&mut frame)?;
+        Map::wrap(frame)
         self.cam.grab().map(Mat::from_rustcv)
     }
 }

@@ -1,4 +1,4 @@
-use std::{error, fmt};
+use std::{convert::From, error, fmt};
 
 #[derive(Debug)]
 pub struct CVErr {
@@ -20,8 +20,15 @@ impl fmt::Display for CVErr {
 
 impl error::Error for CVErr {}
 
+impl From<opencv::Error> for CVErr {
+    fn from(err: opencv::Error) -> Self {
+        CVErr::new(Component::Opencv, err.to_string())
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub enum Component {
+    Opencv,
     VideoCapture,
     VideoWriter,
 }

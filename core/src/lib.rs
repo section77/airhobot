@@ -1,19 +1,22 @@
-pub use cv::*;
+use std::error::Error;
 
+pub use cv::*;
 pub mod err;
 pub use err::*;
 pub mod utils;
 
-pub fn find_puck(frame: &Mat<HSV>, hsv_range: &HSVRange) -> Contours {
-    let masked = frame.in_range(hsv_range.min(), hsv_range.max());
-    let contours = masked.find_contours();
-    contours
-        .into_iter()
+type Result<T> = std::result::Result<T, Box<dyn Error>>;
+
+pub fn find_puck(frame: &Mat<HSV>, hsv_range: &HSVRange) -> Result<Contours> {
+    let mut masked = frame.in_range(hsv_range.min(), hsv_range.max());
+    let contours = masked.find_contours()?;
+    Ok(contours
+        .iter()
         .filter(|c| {
-            let area = c.area();
+            let area = c.area().unwrap();
             area > 350.0 && area < 3000.0
         })
-        .collect()
+        .collect())
 }
 
 pub fn predict(p1: &Point, p2: &Point, x: i32) -> Option<Point> {
