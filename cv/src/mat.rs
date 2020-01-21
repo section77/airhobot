@@ -1,10 +1,5 @@
-use log::warn;
-use opencv::core::Mat as OpencvMat;
-// use rustcv::core::in_range_with_scalar;
-// use rustcv::core::Mat as RustCVMat;
-// use rustcv::imgproc::*;
-
 use super::*;
+use opencv::core::Mat as OpencvMat;
 use std::marker::PhantomData;
 
 #[derive(Debug)]
@@ -97,15 +92,58 @@ impl<ColorSpace> Mat<ColorSpace> {
         Ok(())
     }
 
-    // pub fn draw_line<C: ToOpencvScalar>(&mut self, p1: &Point, p2: &Point, color: C, thickness: i32) {
-    //     line(
-    //         &mut self.inner,
-    //         p1.to_rustcv(),
-    //         p2.to_rustcv(),
-    //         color.to_scalar(),
-    //         thickness,
-    //     );
-    // }
+    pub fn draw_text<C>(&mut self, text: &str, org: &Point, font_scale: f64, color: C, thickness: i32) -> Result<()>
+    where C: ToOpencvScalar,
+    {
+        let font_hershey_simplex = 0;
+        let line_filled = -1;
+        let bottom_left_origin = false;
+        opencv::imgproc::put_text(
+            &mut self.inner,
+            text,
+            org.unpack(),
+            font_hershey_simplex,
+            font_scale,
+            color.to_opencv_scalar(),
+            thickness,
+            line_filled,
+            bottom_left_origin
+        )?;
+        Ok(())
+    }
+
+    pub fn draw_line<C: ToOpencvScalar>(&mut self, p1: &Point, p2: &Point, color: C, thickness: i32) -> Result<()>{
+        let line_filled = -1;
+        let shift = 0;
+        opencv::imgproc::line(
+            &mut self.inner,
+            p1.unpack(),
+            p2.unpack(),
+            color.to_opencv_scalar(),
+            thickness,
+            line_filled,
+            shift
+        )?;
+        Ok(())
+    }
+
+
+    pub fn draw_arrowed_line<C: ToOpencvScalar>(&mut self, p1: &Point, p2: &Point, color: &C, thickness: i32) -> Result<()>{
+        let line_filled = -1;
+        let shift = 0;
+        let tip_length = 1.0;
+        opencv::imgproc::arrowed_line(
+            &mut self.inner,
+            p1.unpack(),
+            p2.unpack(),
+            color.to_opencv_scalar(),
+            thickness,
+            line_filled,
+            shift,
+            tip_length
+        )?;
+        Ok(())
+    }
 
     // pub fn median_blur(&mut self, size: i32) {
     //     let size = if size % 2 == 0 {
