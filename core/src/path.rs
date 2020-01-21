@@ -1,5 +1,4 @@
-use rustcv::core::{Mat, Point, Scalar};
-use rustcv::imgproc::arrowed_line;
+use super::*;
 use std::collections::VecDeque;
 
 #[derive(Debug)]
@@ -16,18 +15,20 @@ impl Path {
         }
     }
 
-    pub fn push(&mut self, p: Point) {
+    pub fn push(&mut self, p: &Point) {
         if self.history.len() >= HISTORY_SIZE {
             self.history.pop_front();
         }
-        self.history.push_back(p);
+        self.history.push_back(p.clone());
     }
 
-    pub fn draw_path(&self, mat: &mut Mat, color: Scalar, thickness: i32) {
+    pub fn draw_path<C>(&self, mat: &mut Mat<BGR>, color: C, thickness: i32)
+    where C: ToOpencvScalar
+    {
         let mut iter = self.history.iter().peekable();
         loop {
             match (iter.next(), iter.peek()) {
-                (Some(p1), Some(p2)) => arrowed_line(mat, p1.clone(), *p2.clone(), color, thickness),
+                (Some(p1), Some(p2)) => mat.draw_arrowed_line(&p1, &p2, &color, thickness).unwrap(),
                 _                    => break,
             }
         }

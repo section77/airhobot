@@ -4,6 +4,8 @@ pub use cv::*;
 pub mod err;
 pub use err::*;
 pub mod utils;
+pub mod path;
+pub use path::Path;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
