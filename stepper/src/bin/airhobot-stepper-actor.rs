@@ -4,6 +4,7 @@ use std::error::Error;
 use std::io;
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
+use std::cmp::max;
 use std::thread;
 use stepper::*;
 
@@ -24,14 +25,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         "L",
         EnablePin(23),
         StepPin(27),
-        DirectionPin(17),
+        DirectionPin(22),
     )?));
 
     let stepper_r = Arc::new(Mutex::new(Stepper::new(
         "R",
         EnablePin(24),
         StepPin(13),
-        DirectionPin(5),
+        DirectionPin(17),
     )?));
 
     loop {
@@ -44,9 +45,17 @@ fn main() -> Result<(), Box<dyn Error>> {
         // try to parse the telegram
         match split_fields(&buf) {
             Ok((l, r)) => {
+
+                // calculate the delay for each stepper
+                // this synchronizes both steppers if their have
+                // different step counts
+                let delay = max(l.abs(), r.abs()) * 600;
+                let delay_l = delay / max(1, l.abs());
+                let delay_r = delay / max(1, r.abs());
+
                 info!("trigger stepper actions");
-                let thread_hndl_l = make_steps_async(stepper_l.clone(), l);
-                let thread_hdnl_r = make_steps_async(stepper_r.clone(), r);
+                let thread_hndl_l = make_steps_async(stepper_l.clone(), l, delay_l);
+                let thread_hdnl_r = make_steps_async(stepper_r.clone(), r, delay_r);
 
                 // wait for stepper actions
                 info!("wait for steppers");
@@ -74,13 +83,13 @@ fn split_fields(s: &str) -> Result<(i32, i32), Box<dyn Error>> {
     }
 }
 
-fn make_steps_async(stepper: Arc<Mutex<Stepper>>, x: i32) -> thread::JoinHandle<()> {
+fn make_steps_async(stepper: Arc<Mutex<Stepper>>, x: i32, delay: i32) -> thread::JoinHandle<()> {
     let direction = if x < 0 { Direction::Left } else { Direction::Right };
 
     let steps = x.abs() as u32;
 
     thread::spawn(move || {
-        stepper.lock().unwrap().step_n(direction, steps);
+        stepper.lock().unwrap().step_n(direction, steps, delay);
     })
 }
 

@@ -2,7 +2,15 @@ use log::{debug, info};
 use rppal::gpio;
 use std::error::Error;
 use std::fmt;
-use std::{thread::sleep, time::Duration};
+use std::{
+    thread::{
+        self,
+        sleep,
+        JoinHandle,
+    },
+    time::Duration
+};
+use std::cmp::max;
 
 /// Direction
 #[derive(Debug, PartialEq)]
@@ -81,21 +89,25 @@ impl Stepper {
         debug!("{} - step - direction: {:?}", self.name, direction);
         self.set_direction(direction);
         self.pin_step.set_high();
-        sleep(Duration::from_micros(400));
+        sleep(Duration::from_micros(600));
         self.pin_step.set_low();
-        sleep(Duration::from_micros(400));
+        sleep(Duration::from_micros(600));
     }
 
-    pub fn step_n(&mut self, direction: Direction, steps: u32) {
-        debug!("{} - step_n - direction: {:?}, n: {}", self.name, direction, steps);
+    pub fn step_n(&mut self, direction: Direction, steps: u32, delay: i32) {
 
-        self.set_direction(direction);
-        for _ in 0..steps {
-            self.pin_step.set_high();
-            sleep(Duration::from_micros(400));
-            self.pin_step.set_low();
-            sleep(Duration::from_micros(400));
-        }
+            debug!("{} - step_n - direction: {:?}, steps: {}, delay: {}", self.name, direction, steps, delay);
+
+            self.set_direction(direction);
+
+            let mut n = 800_i32;
+            for i in 0..steps {
+                //let delay = 600; // max(400, n - i as i32 * 2) as u64;
+                self.pin_step.set_high();
+                sleep(Duration::from_micros(delay as u64));
+                self.pin_step.set_low();
+                sleep(Duration::from_micros(delay as u64));
+            }
     }
 
     fn set_direction(&mut self, direction: Direction) {
