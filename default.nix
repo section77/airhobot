@@ -3,32 +3,15 @@ let
   inherit (import <nixpkgs> {}) fetchFromGitHub;
 
   # cmd:
-  #   nix-prefetch-git https://github.com/mozilla/nixpkgs-mozilla
+  #   nix-prefetch-git https://github.com/NixOS/nixpkgs-channels
   #
-  # Commit date is 2019-12-30 14:34:10 -0500
-  nixpkgs-mozilla = fetchFromGitHub {
-    owner = "mozilla";
-    repo = "nixpkgs-mozilla";
-    rev = "c482bfd3dab1bde9590b03e712d73ced15385be4";
-    sha256 = "18sxl0fxhbdnrfmkbmgxwsn12qy8dbv6ccb3imyyqbjqb76j8dpi";
-  };
-
-  # cmd:
-  #   nix-prefetch-git https://github.com/NixOS/nixpkgs-channels --rev refs/heads/nixos-19.09
-  #
-  # Commit date is 2020-01-10 09:04:32 +0000
-  nixpkgs = fetchFromGitHub {
+  # 2020-02-09T08:22:00+01:00
+  pkgs = import (fetchFromGitHub {
     owner = "NixOS";
     repo = "nixpkgs-channels";
-    rev = "9f453eb97ffe261ff93136757cd08b522fac83b7";
-    sha256 = "16wdsazc7g09ibcxlqsa3kblzhbbpdpb6s29llliybw73cp37b9s";
-  };
-
-  pkgs = import nixpkgs { overlays = [ (import "${nixpkgs-mozilla}/rust-overlay.nix") ]; };
-
-  rust-channel = pkgs.rustChannelOf { channel = "1.40.0"; };
-  rust = rust-channel.rust.override { extensions = [  "rustfmt-preview" "clippy-preview" "rust-analysis" ]; };
-
+    rev = "8130f3c1c2bb0e533b5e150c39911d6e61dcecc2";
+    sha256 = "154nrhmm3dk5kmga2w5f7a2l6j79dvizrg4wzbrcwlbvdvapdgkb";
+  }) {};
 
   my-opencv4 = pkgs.opencv4.override {
     enableGtk2 = true;
@@ -40,10 +23,15 @@ in pkgs.mkShell rec {
   buildInputs = with pkgs; [
     clang
     my-opencv4
-    rust
+    rustc cargo rls
     pkgconfig openssl
     python3
+  ] ++
+  [ ((emacsPackagesGen emacs).emacsWithPackages (epkgs:
+      (with epkgs.melpaStablePackages; [ magit nix-mode ivy swiper ]) ++
+       (with epkgs.melpaPackages; [ rustic lsp-mode flycheck ])))
   ];
+
 
   shellHook = ''
      export LIBCLANG_PATH="${pkgs.llvmPackages.clang-unwrapped.lib}/lib"

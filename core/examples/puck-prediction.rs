@@ -8,15 +8,14 @@ fn main() -> Result<(), Box<dyn error::Error>> {
 
     let gui = GUI::new("AirHoBot - Puck Prediction");
 
-    let src_video_file = utils::asset_path(&env::args().nth(1).unwrap_or("airhockey-with-some-pucks.webm".into()));
-    info!("load video from file: {:?}", src_video_file);
-    let video = VideoCapture::open_file(&src_video_file)?;
-
+    let mut cam = Cam::new_for_device_id(2)?;
+    let mut frame = cam.grab()?;
     let mut path = Path::new();
 
     let mut p1 = Point::new(0, 0);
     let mut p2 = Point::new(0, 0);
-    for mut frame in video {
+    loop {
+        let mut frame = cam.grab()?;
         let hsv_frame = frame.to_hsv()?;
 
         // green puck

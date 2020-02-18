@@ -37,7 +37,7 @@ impl VideoCapture {
     pub fn grab(&mut self) -> Result<Mat<BGR>> {
         let mut frame = opencv::core::Mat::default()?;
         self.inner.read(&mut frame)?;
-        Ok(Mat::wrap(frame))
+        Ok(Mat::pack(frame))
     }
 }
 
@@ -87,6 +87,6 @@ impl VideoWriter {
         check("width", frame.n_cols(), self.width);
         check("height", frame.n_rows(), self.height);
 
-        self.inner.write(frame.unwrap());
+        self.inner.write(frame.unpack());
     }
 }

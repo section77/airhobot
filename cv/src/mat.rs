@@ -1,6 +1,7 @@
 use super::*;
 use opencv::core::Mat as OpencvMat;
 use std::marker::PhantomData;
+use log::debug;
 
 #[derive(Debug)]
 pub struct Gray;
@@ -15,7 +16,7 @@ pub struct Mat<ColorSpace> {
 
 impl<ColorSpace> Mat<ColorSpace> {
     pub fn new<C: ToOpencvScalar>(rows: i32, cols: i32, cv_type: &CVType, background: C) -> Result<Mat<ColorSpace>> {
-        Ok(Mat::wrap(OpencvMat::new_rows_cols_with_default(
+        Ok(Mat::pack(OpencvMat::new_rows_cols_with_default(
             rows,
             cols,
             cv_type.unpack(),
@@ -23,7 +24,7 @@ impl<ColorSpace> Mat<ColorSpace> {
         )?))
     }
 
-    pub fn wrap(inner: opencv::core::Mat) -> Mat<ColorSpace> {
+    pub fn pack(inner: opencv::core::Mat) -> Mat<ColorSpace> {
         let n_rows = inner.rows().unwrap();
         let n_cols = inner.cols().unwrap();
         Mat {
@@ -34,9 +35,14 @@ impl<ColorSpace> Mat<ColorSpace> {
         }
     }
 
-    pub fn unwrap(&self) -> &opencv::core::Mat {
+    pub fn unpack(&self) -> &opencv::core::Mat {
         &self.inner
     }
+
+    pub fn roi(m: &Mat<ColorSpace>, roi: Rect) -> Result<Mat<ColorSpace>> {
+	Ok(Mat::pack(opencv::core::Mat::roi(&m.inner, roi.unpack())?))
+    }
+
 
     pub fn n_rows(&self) -> i32 {
         self.n_rows
@@ -48,6 +54,54 @@ impl<ColorSpace> Mat<ColorSpace> {
 
     pub fn is_empty(&self) -> Result<bool> {
         Ok(self.inner.empty()?)
+    }
+
+    // FIXME: ColorSpace
+    pub fn at_2d(&self, x: i32, y: i32) -> Result<HSV> {
+        let v = self.inner.at_2d::<opencv::core::Vec3b>(y, x)?;
+        debug!("requested point at: x: {}, y: {}, value: {:?}", x, y, v);
+        //	Ok(HSV::unsafe_new(v[0] as u8, v[1] as u8, v[2] as u8))
+        let rgb = (RGB::new(v[2] as u8, v[1] as u8, v[0] as u8));
+        let hsv = (Mat::<HSV>::rgb2hsv(rgb));
+        Ok(hsv)
+    }
+
+    fn rgb2hsv(rgb: RGB) -> HSV {
+        let (r, g, b) = (rgb.r as f32 / 255.0,
+                         rgb.g as f32 / 255.0,
+                         rgb.b as f32 / 255.0);
+        let min = r.min(g).min(b);
+        let max = r.max(g).max(b);
+        let diff = max - min;
+
+        let mut h = 60.0 *
+            if max == min {
+                0.0
+            } else if max == r {
+                (g-b) / diff
+            } else if max == g {
+                2.0 + (b - r) / diff
+            } else if max == b {
+                4.0 + (r - g) / diff
+            } else {
+                unreachable!()
+            };
+        if h < 0.0 {
+            h += 360.0;
+        }
+
+        let s = if max == 0.0 {
+            0.0
+        } else {
+            diff / max
+        };
+
+        let h = ((h / 2.0).max(0.0));
+        let s = (s);
+        let v = (max);
+
+
+        HSV::unsafe_new(h as u8, (s * 255.0) as u8, (v * 255.0) as u8)
     }
 
     // pub fn draw_contours<T: ToOpencvScalar>(&mut self, contours: &Contours, color: T, thickness: i32) {
@@ -145,6 +199,18 @@ impl<ColorSpace> Mat<ColorSpace> {
         Ok(())
     }
 
+    pub fn copy_to(&self, target: &mut Mat<ColorSpace>) -> Result<()> {
+	self.unpack().copy_to(&mut target.inner)?;
+	Ok(())
+    }
+
+    pub fn blur(&mut self, ksize: i32) -> Result<()> {
+        let src = self.inner.clone().unwrap();
+        opencv::imgproc::blur(&src, &mut self.inner, opencv::core::Size::new(ksize, ksize)
+                              , opencv::core::Point::new(-1, -1), 4)?;
+
+        Ok(())
+    }
     // pub fn median_blur(&mut self, size: i32) {
     //     let size = if size % 2 == 0 {
     //         let new_size = size + 1;
@@ -173,7 +239,7 @@ pub trait ToHSV {
     fn convert<ColorSpace>(mat: &Mat<ColorSpace>, code: i32) -> Result<Mat<HSV>> {
         let mut hsv = OpencvMat::default()?;
         opencv::imgproc::cvt_color(&mat.inner, &mut hsv, code, 0)?;
-        Ok(Mat::wrap(hsv))
+        Ok(Mat::pack(hsv))
     }
 }
 
@@ -216,7 +282,7 @@ impl InRange for Mat<HSV> {
     fn in_range<T: ToOpencvScalar>(&self, lb: &T, ub: &T) -> Mat<Gray> {
         let mut masked = OpencvMat::default().unwrap();
         opencv::core::in_range(&self.inner, &lb.to_opencv_scalar(), &ub.to_opencv_scalar(), &mut masked);
-        Mat::wrap(masked)
+        Mat::pack(masked)
     }
 }
 
@@ -225,7 +291,6 @@ pub trait FindContours {
 }
 impl FindContours for Mat<Gray> {
     fn find_contours(&mut self) -> Result<Contours> {
-        use opencv::prelude::Vector;
         let mut contours = opencv::types::VectorOfVectorOfPoint::new();
         opencv::imgproc::find_contours(
             &mut self.inner,
@@ -235,6 +300,17 @@ impl FindContours for Mat<Gray> {
             OpencvPoint::new(0, 0),
         )?;
         Ok(Contours::pack(contours))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn rgb2hsv() {
+        let res = dbg!(Mat::<HSV>::rgb2hsv(RGB::new(11, 75, 143)));
+        assert_eq!(res, HSV::unsafe_new(210, 92, 56));
     }
 }
 

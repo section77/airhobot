@@ -16,7 +16,7 @@ pub fn find_puck(frame: &Mat<HSV>, hsv_range: &HSVRange) -> Result<Contours> {
         .iter()
         .filter(|c| {
             let area = c.area().unwrap();
-            area > 350.0 && area < 3000.0
+            area > 650.0 && area < 3000.0
         })
         .collect())
 }

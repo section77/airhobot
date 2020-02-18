@@ -20,7 +20,7 @@ impl GUI {
 
     // Show the given frame for the given duration
     pub fn show_for<T>(&self, mat: &Mat<T>, dur: time::Duration) {
-        highgui::imshow(&self.name, &mat.unwrap());
+        highgui::imshow(&self.name, &mat.unpack());
 
         let millis = dur.as_millis() as i32;
         highgui::wait_key(millis);
