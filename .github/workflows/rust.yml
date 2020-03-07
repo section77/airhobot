@@ -8,16 +8,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: checkout
-        uses: actions/checkout@v1
+      - uses: actions/checkout@v1
+
+      - uses: cachix/install-nix-action@v6
 
       - name: run tests
-        run: cargo test --verbose
+        run: nix-shell --run 'cargo test --verbose'
 
       - name: build and deploy api doc
         run: |
 
-          cargo doc --no-deps --features all
+          nix-shell --run 'cargo doc --no-deps'
 
           cat > target/doc/index.html <<EOF
           <!doctype html>

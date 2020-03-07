@@ -157,29 +157,29 @@ mouse_event!((Move, MouseMove),
 mod tests {
     use super::*;
 
-    #[test]
-    // this test verifies only if the code compiles
-    // and if the api is easy to use
-    fn mouse_events_api() {
-        let gui = GUI::new("mouse-events-api");
-        let mouse_events = gui.mouse_events();
-        match mouse_events.try_recv() {
-            Ok(MouseEvent::Move(p)) => p,
-            _ => Point::default(),
-        };
-        gui.destroy();
-    }
+    // #[test]
+    // // this test verifies only if the code compiles
+    // // and if the api is easy to use
+    // fn mouse_events_api() {
+    //     let gui = GUI::new("mouse-events-api");
+    //     let mouse_events = gui.mouse_events();
+    //     match mouse_events.try_recv() {
+    //         Ok(MouseEvent::Move(p)) => p,
+    //         _ => Point::default(),
+    //     };
+    //     gui.destroy();
+    // }
 
-    #[test]
-    // this test verifies only if the code compiles
-    // and if the api is easy to use
-    fn mouse_events_for_api() {
-        let gui = GUI::new("mouse-events-for-api");
-        let mouse_events = gui.mouse_events_for::<MouseLeftBtnDown>();
-        if let Ok(event) = mouse_events.try_recv() {
-            let _p: crate::Point = event.point();
-        }
-        gui.destroy();
-    }
+    // #[test]
+    // // this test verifies only if the code compiles
+    // // and if the api is easy to use
+    // fn mouse_events_for_api() {
+    //     let gui = GUI::new("mouse-events-for-api");
+    //     let mouse_events = gui.mouse_events_for::<MouseLeftBtnDown>();
+    //     if let Ok(event) = mouse_events.try_recv() {
+    //         let _p: crate::Point = event.point();
+    //     }
+    //     gui.destroy();
+    // }
 
 }
