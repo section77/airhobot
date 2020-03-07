@@ -1,0 +1,34 @@
+name: test and deploy api
+
+on: [push]
+
+jobs:
+  test-and-deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v1
+
+      - name: run tests
+        run: cargo test --verbose
+
+      - name: build and deploy api doc
+        run: |
+
+          cargo doc --no-deps --features all
+
+          cat > target/doc/index.html <<EOF
+          <!doctype html>
+          <html><head>
+            <meta http-equiv="refresh" content="0; URL='airhobot/index.html'" />
+          </head></html>
+          EOF
+
+          cd target/doc
+
+          git init
+          git add -A
+          git -c user.name='ci' -c user.email='ci' commit -m 'docs'
+          git push -f -q https://git:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.REPOSITORY }} HEAD:gh-pages
