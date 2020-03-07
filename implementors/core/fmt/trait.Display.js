@@ -1,0 +1,11 @@
+(function() {var implementors = {};
+implementors["airhobot"] = [{text:"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html\" title=\"trait core::fmt::Display\">Display</a> for <a class=\"enum\" href=\"airhobot/prelude/enum.Error.html\" title=\"enum airhobot::prelude::Error\">Error</a>",synthetic:false,types:["airhobot::error::Error"]},];
+implementors["cv"] = [{text:"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html\" title=\"trait core::fmt::Display\">Display</a> for <a class=\"struct\" href=\"cv/colors/struct.HSV.html\" title=\"struct cv::colors::HSV\">HSV</a>",synthetic:false,types:["cv::colors::hsv::HSV"]},{text:"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html\" title=\"trait core::fmt::Display\">Display</a> for <a class=\"struct\" href=\"cv/colors/struct.HSVRange.html\" title=\"struct cv::colors::HSVRange\">HSVRange</a>",synthetic:false,types:["cv::colors::hsv_range::HSVRange"]},{text:"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html\" title=\"trait core::fmt::Display\">Display</a> for <a class=\"enum\" href=\"cv/error/enum.Error.html\" title=\"enum cv::error::Error\">Error</a>",synthetic:false,types:["cv::error::Error"]},{text:"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html\" title=\"trait core::fmt::Display\">Display</a> for <a class=\"struct\" href=\"cv/point/struct.Point.html\" title=\"struct cv::point::Point\">Point</a>",synthetic:false,types:["cv::point::Point"]},];
+implementors["stepper"] = [{text:"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html\" title=\"trait core::fmt::Display\">Display</a> for <a class=\"struct\" href=\"stepper/struct.Stepper.html\" title=\"struct stepper::Stepper\">Stepper</a>",synthetic:false,types:["stepper::Stepper"]},];
+
+            if (window.register_implementors) {
+                window.register_implementors(implementors);
+            } else {
+                window.pending_implementors = implementors;
+            }
+        })()

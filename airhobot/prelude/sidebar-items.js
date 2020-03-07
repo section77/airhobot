@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Error",""],["MouseEvent",""],["Source","Input source. Can be an Image, Video or Cam."]],"fn":[["asset_path",""],["predict",""]],"struct":[["Config",""],["Detector",""],["Driver",""],["Filter",""],["Roi",""],["State",""]],"trait":[["FindContours",""],["InRange",""],["ToHSV",""]],"type":[["Cfg",""],["MouseEvents",""],["Result",""]]});

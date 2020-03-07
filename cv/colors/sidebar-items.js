@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["BGR","Represents a BGR color"],["HSV",""],["HSVRange",""],["RGB","Represents a RGB color"]],"trait":[["ToOpencvScalar",""]]});

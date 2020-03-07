@@ -1,0 +1,10 @@
+(function() {var implementors = {};
+implementors["airhobot"] = [{text:"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"struct\" href=\"airhobot/prelude/struct.Config.html\" title=\"struct airhobot::prelude::Config\">Config</a>",synthetic:false,types:["airhobot::config::Config"]},{text:"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"struct\" href=\"airhobot/prelude/struct.Roi.html\" title=\"struct airhobot::prelude::Roi\">Roi</a>",synthetic:false,types:["airhobot::config::Roi"]},{text:"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"struct\" href=\"airhobot/prelude/struct.Filter.html\" title=\"struct airhobot::prelude::Filter\">Filter</a>",synthetic:false,types:["airhobot::config::Filter"]},{text:"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"struct\" href=\"airhobot/prelude/struct.Driver.html\" title=\"struct airhobot::prelude::Driver\">Driver</a>",synthetic:false,types:["airhobot::config::Driver"]},];
+implementors["cv"] = [{text:"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"struct\" href=\"cv/point/struct.Point.html\" title=\"struct cv::point::Point\">Point</a>",synthetic:false,types:["cv::point::Point"]},];
+
+            if (window.register_implementors) {
+                window.register_implementors(implementors);
+            } else {
+                window.pending_implementors = implementors;
+            }
+        })()

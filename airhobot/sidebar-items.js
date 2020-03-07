@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["PuckSpeed",""]],"fn":[["detect",""]],"mod":[["prelude",""]]});

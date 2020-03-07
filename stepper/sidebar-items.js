@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Direction","Direction"]],"struct":[["DirectionPin","GPIO pin number to the 'Dir' pin on the stepper-driver"],["EnablePin","GPIO pin number to the 'Enable' pin on the stepper-driver"],["StepPin","GPIO pin number to the 'Step' pin on the stepper-driver"],["Stepper","Represents a stepper"]]});

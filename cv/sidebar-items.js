@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["CVType",""]],"mod":[["colors",""],["contour",""],["error",""],["gui",""],["imageio",""],["mat",""],["point",""],["prelude",""],["rect",""],["videoio",""]]});
