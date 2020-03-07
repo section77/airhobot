@@ -9,4 +9,9 @@ cv = { path = "../cv" }
 stepper = { path = "../stepper" }
 log = "0.4"
 env_logger = "0.6"
-opencv = "0.29.2"
+crossbeam-channel = "0.4.0"
+snafu = "0.6.2"
+structopt = "0.3.9"
+serde = { version = "1.0.104", features = [ "derive" ] }
+serde_json = "1.0.48"
+xstd = "0.2"

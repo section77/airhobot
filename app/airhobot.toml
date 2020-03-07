@@ -1,0 +1,60 @@
+{
+  "roi": {
+    "lt": {
+      "x": 308,
+      "y": 5
+    },
+    "rt": {
+      "x": 641,
+      "y": 4
+    },
+    "rb": {
+      "x": 808,
+      "y": 440
+    },
+    "lb": {
+      "x": 113,
+      "y": 450
+    }
+  },
+  "filter": {
+    "blur": 0,
+    "erode": 0,
+    "dilate": 0
+  },
+  "pusher": {
+    "color": {
+      "h": 0,
+      "s": 220,
+      "v": 140
+    },
+    "h_offset": 30,
+    "s_offset": 43,
+    "v_offset": 35,
+    "area_range": {
+      "start": 350.0,
+      "end": 3000.0
+    },
+    "min_vertices": 10 
+  },
+  "puck": {
+    "color": {
+      "h": 60,
+      "s": 120,
+      "v": 120
+    },
+    "h_offset": 30,
+    "s_offset": 40,
+    "v_offset": 50,
+    "area_range": {
+      "start": 350.0,
+      "end": 3000.0
+    },
+    "min_vertices": 10
+  },
+  "driver": {
+    "addr": "192.168.1.100:6789",
+    "delay": 450,
+    "factor": 0.005
+  }
+}

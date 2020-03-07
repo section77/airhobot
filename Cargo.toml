@@ -1,7 +1,13 @@
 [workspace]
 
 members = [
-  "core",
+  "app",
   "cv",
-  "stepper"
+  "stepper",
 ]
+
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+panic = "abort"

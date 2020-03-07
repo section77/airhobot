@@ -1,10 +1,10 @@
 use env_logger::{Builder, Env};
 use log::*;
+use std::cmp::max;
 use std::error::Error;
 use std::io;
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
-use std::cmp::max;
 use std::thread;
 use stepper::*;
 
@@ -45,7 +45,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         // try to parse the telegram
         match split_fields(&buf) {
             Ok((l, r)) => {
-
                 // calculate the delay for each stepper
                 // this synchronizes both steppers if their have
                 // different step counts

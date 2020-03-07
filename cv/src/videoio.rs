@@ -1,7 +1,8 @@
 use crate::*;
-use log::warn;
-use opencv::videoio::VideoCapture as OpencvVideoCapture;
-use opencv::videoio::VideoWriter as OpencvVideoWriter;
+use opencv::videoio::{
+    VideoCapture as OpencvVideoCapture, VideoCaptureTrait, VideoWriter as OpencvVideoWriter, VideoWriterTrait, CAP_ANY,
+};
+use snafu::ensure;
 use std::path::Path;
 
 pub struct VideoCapture {
@@ -10,28 +11,19 @@ pub struct VideoCapture {
 
 impl VideoCapture {
     pub fn open_file(path: &Path) -> Result<VideoCapture> {
-        let mut inner = OpencvVideoCapture::default()?;
-        if inner.open_file_with_backend(&path.to_string_lossy(), opencv::videoio::CAP_ANY)? {
-            Ok(VideoCapture { inner })
-        } else {
-            // FIXME
-            Err(CVErr::new(
-                Component::VideoCapture,
-                format!("unable to open file: {}", path.to_string_lossy()),
-            ))
+        if !path.exists() {
+            return Err(Error::VideoIO {
+                source: opencv::Error::new(0, format!("unable to open file: {}", path.to_string_lossy())),
+            });
         }
+
+        let inner = OpencvVideoCapture::from_file(&path.to_string_lossy(), opencv::videoio::CAP_ANY)?;
+        Ok(VideoCapture { inner })
     }
 
     pub fn open_device(device_id: i32) -> Result<VideoCapture> {
-        let mut inner = OpencvVideoCapture::default()?;
-        if inner.open_with_backend(device_id, opencv::videoio::CAP_ANY)? {
-            Ok(VideoCapture { inner })
-        } else {
-            Err(CVErr::new(
-                Component::VideoCapture,
-                format!("unable to open device with device_id: {}", device_id),
-            ))
-        }
+        let inner = OpencvVideoCapture::new(device_id, videoio::CAP_ANY)?;
+        Ok(VideoCapture { inner })
     }
 
     pub fn grab(&mut self) -> Result<Mat<BGR>> {
@@ -46,9 +38,9 @@ impl Iterator for VideoCapture {
     fn next(&mut self) -> Option<Self::Item> {
         let mat = self.grab().ok()?;
         if mat.is_empty().ok()? {
-            return None
+            return None;
         }
-        return Some(mat)
+        return Some(mat);
     }
 }
 
@@ -67,26 +59,32 @@ impl VideoWriter {
         if inner.open(&path.to_string_lossy(), fourcc, fps, size, true)? {
             Ok(VideoWriter { inner, width, height })
         } else {
-            Err(CVErr::new(
-                Component::VideoWriter,
-                "unable to open video-writer".to_string(),
-            ))
+            Err(Error::VideoIO {
+                source: opencv::Error::new(0, format!("unable to video-writer")),
+            })
         }
     }
 
-    pub fn write(&mut self, frame: &Mat<BGR>) {
-        let check = |name, actual, expected| {
-            if actual != expected {
-                warn!(
-                    "wrong {} - frame-height: {}, VideoWriter expects: {} - this will result in an empty video",
-                    name, actual, expected,
+    pub fn write(&mut self, frame: &Mat<BGR>) -> Result<()> {
+        ensure!(
+            frame.n_cols() == self.width,
+            UserInput {
+                msg: format!("width incompatible - frame: {}, video: {}", frame.n_cols(), self.width)
+            }
+        );
+
+        ensure!(
+            frame.n_rows() == self.height,
+            UserInput {
+                msg: format!(
+                    "heigth incompatible - frame: {}, video: {}",
+                    frame.n_rows(),
+                    self.height
                 )
             }
-        };
+        );
 
-        check("width", frame.n_cols(), self.width);
-        check("height", frame.n_rows(), self.height);
-
-        self.inner.write(frame.unpack());
+        self.inner.write(frame.unpack())?;
+        Ok(())
     }
 }

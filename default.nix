@@ -14,7 +14,7 @@ let
   }) {};
 
   my-opencv4 = pkgs.opencv4.override {
-    enableGtk2 = true;
+    enableGtk3 = true;
     enableFfmpeg = true;
   };
 
@@ -23,13 +23,12 @@ in pkgs.mkShell rec {
   buildInputs = with pkgs; [
     clang
     my-opencv4
-    rustc cargo rls
+    ffmpeg
+    rustc cargo rls rustfmt
     pkgconfig openssl
     python3
-  ] ++
-  [ ((emacsPackagesGen emacs).emacsWithPackages (epkgs:
-      (with epkgs.melpaStablePackages; [ magit nix-mode ivy swiper ]) ++
-       (with epkgs.melpaPackages; [ rustic lsp-mode flycheck ])))
+    gnome3.gtk glib cairo pango atk gdk_pixbuf
+
   ];
 
 
