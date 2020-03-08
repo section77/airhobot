@@ -51,6 +51,12 @@ impl Contour {
 
 pub struct Contours(VectorOfVectorOfPoint);
 impl Contours {
+    pub fn new(contour: Contour) -> Self {
+        let mut v = VectorOfVectorOfPoint::new();
+        v.push(contour.0);
+        Contours(v)
+    }
+
     pub(crate) fn pack(contours: VectorOfVectorOfPoint) -> Self {
         Contours(contours)
     }
