@@ -1,9 +1,9 @@
 use super::*;
-use xstd::prelude::*;
 use crossbeam_channel as chan;
 use log::debug;
 use opencv::highgui;
-use std::{ops::Range, time};
+use std::time;
+use xstd::prelude::*;
 
 /// Simple GUI
 #[derive(Debug)]
@@ -34,7 +34,7 @@ impl GUI {
         Ok(highgui::wait_key(millis)? as u8 as char)
     }
 
-    pub fn slider<S>(&self, name: S, start: i32, range: Range<i32>) -> chan::Receiver<i32>
+    pub fn slider<S>(&self, name: S, start: i32, end: i32) -> chan::Receiver<i32>
     where
         S: AsRef<str>,
     {
@@ -44,7 +44,7 @@ impl GUI {
             name.as_ref(),
             &self.name,
             &mut start,
-            range.end,
+            end,
             Some(Box::new({
                 move |v| {
                     if let Err(err) = tx.send(v) {

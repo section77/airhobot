@@ -56,12 +56,12 @@ impl ControlPanel {
         let (blur, erode, dilate, h_offset, s_offset, v_offset) = {
             let cfg = self.1.read().unwrap();
             (
-                gui.slider("Blur", cfg.filter.blur, 0..20),
-                gui.slider("Erode", cfg.filter.erode, 0..20),
-                gui.slider("Dilate", cfg.filter.dilate, 0..20),
-                gui.slider("H Offset", cfg.puck.h_offset, 0..150),
-                gui.slider("S Offset", cfg.puck.s_offset, 0..150),
-                gui.slider("V Offset", cfg.puck.v_offset, 0..150),
+                gui.slider("Blur", cfg.filter.blur, 20),
+                gui.slider("Erode", cfg.filter.erode, 20),
+                gui.slider("Dilate", cfg.filter.dilate, 20),
+                gui.slider("H Offset", cfg.puck.h_offset, 150),
+                gui.slider("S Offset", cfg.puck.s_offset, 150),
+                gui.slider("V Offset", cfg.puck.v_offset, 150),
             )
         };
 
