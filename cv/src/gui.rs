@@ -13,7 +13,7 @@ pub struct GUI {
 
 impl GUI {
     pub fn new(name: &str) -> GUI {
-        highgui::named_window(name, 1).unwrap();
+        highgui::named_window(name, 0).unwrap();
         GUI { name: name.to_string() }
     }
 
@@ -79,7 +79,6 @@ impl GUI {
         rx
     }
 
-
     fn register_mouse_callback<CB>(&self, mut cb: CB)
     where
         CB: FnMut(MouseEvent) + Sized + Sync + Send + 'static,
@@ -90,11 +89,11 @@ impl GUI {
                 move |event, x, y, _flags| {
                     let p = Point::new(x, y);
                     if let Some(mouse_event) = match event {
-                        highgui::EVENT_MOUSEMOVE   => Some(MouseEvent::Move(p)),
+                        highgui::EVENT_MOUSEMOVE => Some(MouseEvent::Move(p)),
                         highgui::EVENT_LBUTTONDOWN => Some(MouseEvent::LeftBtnDown(p)),
-                        highgui::EVENT_LBUTTONUP   => Some(MouseEvent::LeftBtnUp(p)),
+                        highgui::EVENT_LBUTTONUP => Some(MouseEvent::LeftBtnUp(p)),
                         highgui::EVENT_RBUTTONDOWN => Some(MouseEvent::RightBtnDown(p)),
-                        highgui::EVENT_RBUTTONUP   => Some(MouseEvent::RightBtnUp(p)),
+                        highgui::EVENT_RBUTTONUP => Some(MouseEvent::RightBtnUp(p)),
                         _ => None,
                     } {
                         cb(mouse_event);
@@ -109,9 +108,6 @@ impl GUI {
         highgui::set_mouse_callback(&self.name, None).expect("unregister_mouse_callback");
     }
 }
-
-
-
 
 pub type MouseEvents = crossbeam_channel::Receiver<MouseEvent>;
 
@@ -142,16 +138,15 @@ macro_rules! mouse_event {
         }
     }
 }
-mouse_event!((Move, MouseMove),
-             (LeftBtnDown, MouseLeftBtnDown),
-             (LeftBtnUp, MouseLeftBtnUp),
-             (LeftBtnDplClick, MouseLeftBtnDplClick),
-             (RightBtnDown, MouseRightBtnDown),
-             (RightBtnUp, MouseRightBtnUp),
-             (RightBtnDplClick, MouseRightBtnDplClick)
+mouse_event!(
+    (Move, MouseMove),
+    (LeftBtnDown, MouseLeftBtnDown),
+    (LeftBtnUp, MouseLeftBtnUp),
+    (LeftBtnDplClick, MouseLeftBtnDplClick),
+    (RightBtnDown, MouseRightBtnDown),
+    (RightBtnUp, MouseRightBtnUp),
+    (RightBtnDplClick, MouseRightBtnDplClick)
 );
-
-
 
 #[cfg(test)]
 mod tests {
@@ -181,5 +176,4 @@ mod tests {
     //     }
     //     gui.destroy();
     // }
-
 }
