@@ -9,7 +9,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut mouse_events: Option<cv::MouseEvents> = None;
 
     loop {
-        if let Some(mouse_events) = &mouse_events {
+        if let Some(mouse_events) = mouse_events.take() {
             let mut points = Vec::new();
             while points.len() < 4 {
                 while let Ok(event) = mouse_events.try_recv() {
@@ -24,7 +24,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             let w = points[1].x() - points[0].x();
             let h = points[2].y() - points[1].y();
-
 
             let mut dst_corners = opencv::types::VectorOfPoint::new();
             dst_corners.push(cv::Point::new(0, 0).unpack());
@@ -51,7 +50,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 opencv::core::BORDER_CONSTANT,
                 opencv::core::Scalar::default(),
             )?; // do perspective transformation
-            gui.show_for(&cv::Mat::<cv::BGR>::pack(warped_image), Duration::from_millis(10000))?;
+            frame = cv::Mat::<cv::BGR>::pack(warped_image);
         }
 
         match gui.show_for(&frame, Duration::from_millis(100))? {

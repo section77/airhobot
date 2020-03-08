@@ -4,7 +4,6 @@ use std::io;
 #[derive(Debug, Snafu)]
 #[snafu(visibility(pub(crate)))]
 pub enum Error {
-
     #[snafu(display("Invalid argument: {}", msg))]
     Arguments { msg: String },
 

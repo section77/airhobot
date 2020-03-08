@@ -1,5 +1,5 @@
 use airhobot::prelude::*;
-use log::{error, warn, info};
+use log::{error, info, warn};
 use snafu::ErrorCompat;
 use std::{net::UdpSocket, time::Duration};
 use structopt::StructOpt;
@@ -32,14 +32,11 @@ fn run() -> Result<()> {
     // initialize the control panel
     let (mut control_panel, cfg) = control_panel::ControlPanel::new(cfg);
 
-
-
     let gui = cv::GUI::new("AirHoBot");
     let mut state = {
         let frame = args.source()?.grab().ok_or::<Error>("empty source".into())?;
         State::new(cfg, frame)
     };
-
 
     let mut pause = false;
     for frame in args.source()? {
@@ -63,7 +60,6 @@ fn run() -> Result<()> {
             pusher
         };
 
-
         loop {
             control_panel.repaint()?;
             match gui.show_for(&state.frame, Duration::from_millis(args.delay))? {
@@ -77,7 +73,7 @@ fn run() -> Result<()> {
                 'r' => {
                     *state.cfg.write()? = Config::load(&args.config_file)?;
                     break; // next frame
-                },
+                }
                 's' => state.cfg.read()?.save(&args.config_file)?,
                 'q' => return Ok(()),
                 ' ' => pause = !pause,
@@ -85,13 +81,12 @@ fn run() -> Result<()> {
             }
 
             if !pause {
-                break
+                break;
             }
         }
     }
     Ok(())
 }
-
 
 fn select_field(state: &State, gui: &cv::GUI) -> Result<Roi> {
     info!("Select field - select left-top, right-top, right-bottom, left-bottom");
@@ -108,13 +103,12 @@ fn select_field(state: &State, gui: &cv::GUI) -> Result<Roi> {
     Roi::from_vec(vec)
 }
 
-
 fn pick_color(state: &State, gui: &cv::GUI) -> Result<cv::HSV> {
     info!("Pick color");
     let mouse_events = gui.mouse_events_for::<cv::MouseLeftBtnDown>();
     let mut frame = state.frame.clone();
     loop {
-        while let Ok(event) = mouse_events.try_recv(){
+        while let Ok(event) = mouse_events.try_recv() {
             frame.draw_rect(&cv::Rect::center(&event.point(), 10, 10), cv::RGB::red(), 2);
             gui.show_for(&frame, Duration::from_millis(1000))?;
             return Ok(frame.at_avg(&event.point(), 3)?);
@@ -152,7 +146,7 @@ fn move_pusher(state: &State, gui: &cv::GUI) -> Result<()> {
     let mouse_events = gui.mouse_events_for::<cv::MouseLeftBtnDown>();
     let mut frame = state.frame.clone();
     loop {
-        while let Ok(event) = mouse_events.try_recv(){
+        while let Ok(event) = mouse_events.try_recv() {
             let target = event.point();
             frame.draw_circle(&event.point(), 4, cv::RGB::red(), 2);
 
@@ -170,19 +164,17 @@ fn move_pusher(state: &State, gui: &cv::GUI) -> Result<()> {
                 let payload = format!("{}:{}:{}:{}", tx, ty, driver_cfg.delay, driver_cfg.factor);
                 info!("send payload: {}", payload);
                 let socket = UdpSocket::bind("0.0.0.0:6789")?;
-                socket
-                    .send_to(payload.as_bytes(), driver_cfg.addr)?;
+                socket.send_to(payload.as_bytes(), driver_cfg.addr)?;
                 gui.show_for(&frame, Duration::from_millis(1000))?;
-                return Ok(())
+                return Ok(());
             } else {
                 warn!("Pusher not found");
-                return Ok(())
+                return Ok(());
             }
         }
         gui.show_for(&frame, Duration::from_millis(10))?;
     }
 }
-
 
 fn init_logger(args: &args::Args) {
     let filter = {

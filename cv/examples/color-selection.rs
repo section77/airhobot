@@ -8,10 +8,9 @@ use std::{
     env,
     error::Error,
     path::PathBuf,
-    time::Duration,
     sync::{Arc, RwLock},
+    time::Duration,
 };
-
 
 fn main() -> Result<(), Box<dyn Error>> {
     let image_path = {
@@ -27,7 +26,6 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut color = cv::HSV::unsafe_new(0, 255, 51);
     loop {
-
         let mut image = cv::imread(&image_path)?;
         while let Ok(event) = click_events.try_recv() {
             color = image.at(&event.point())?;
@@ -44,7 +42,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 }
 
-
 fn color_range_offsets(gui: &cv::GUI) -> Arc<RwLock<(i32, i32, i32)>> {
     let offsets = Arc::new(RwLock::new((1, 1, 1)));
     std::thread::spawn({
@@ -52,17 +49,15 @@ fn color_range_offsets(gui: &cv::GUI) -> Arc<RwLock<(i32, i32, i32)>> {
         let s = gui.slider("Sättingung (S)", 1, 255);
         let v = gui.slider("Dunkelstufe (V)", 1, 255);
         let offsets = offsets.clone();
-        move || {
-            loop {
-                while let Ok(hv) = h.recv_timeout(Duration::from_millis(100)) {
-                    (*offsets.write().unwrap()).0 = hv;
-                }
-                while let Ok(sv) = s.recv_timeout(Duration::from_millis(100)) {
-                    (*offsets.write().unwrap()).1 = sv;
-                }
-                while let Ok(vv) = v.recv_timeout(Duration::from_millis(100)) {
-                    (*offsets.write().unwrap()).2 = vv;
-                }
+        move || loop {
+            while let Ok(hv) = h.recv_timeout(Duration::from_millis(100)) {
+                (*offsets.write().unwrap()).0 = hv;
+            }
+            while let Ok(sv) = s.recv_timeout(Duration::from_millis(100)) {
+                (*offsets.write().unwrap()).1 = sv;
+            }
+            while let Ok(vv) = v.recv_timeout(Duration::from_millis(100)) {
+                (*offsets.write().unwrap()).2 = vv;
             }
         }
     });

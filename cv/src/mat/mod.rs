@@ -4,8 +4,8 @@ use opencv::{core::Mat as OpencvMat, core::Point as OpencvPoint, prelude::MatTra
 use std::marker::PhantomData;
 
 pub mod convert_color;
-pub mod filter;
 pub mod draw;
+pub mod filter;
 
 #[derive(Debug)]
 pub struct Mat<ColorSpace> {
@@ -132,8 +132,6 @@ impl<ColorSpace> Clone for Mat<ColorSpace> {
         }
     }
 }
-
-
 
 // pub trait FindCenter {
 //     fn find_center(&self) -> Option<Point>;

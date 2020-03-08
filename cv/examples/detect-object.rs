@@ -46,7 +46,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         step
     };
 
-
     let blue_color_range = cv::HSVRange::new(100..=140, 240..=255, 200..=210)?;
     let green_color_range = cv::HSVRange::new(50..=60, 240..=255, 200..=210)?;
     let mut color_range = &blue_color_range;
@@ -85,7 +84,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     .iter()
                     .filter(|c| {
                         if c.area() < 10000.0 {
-                            return false
+                            return false;
                         }
                         let vertices = c.approx_poly_dp(0.02 * c.arc_length(true), true);
                         let vertices_n = vertices.len();
@@ -113,7 +112,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             _ => image,
         };
 
-
         let desc = match step {
             0 => "Original",
             1 => "Filter ueber Farbe",
@@ -124,13 +122,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             6 => "Farbe+Groesse+Kanten",
             _ => "",
         };
-        image.draw_text(
-            &desc,
-            &cv::Point::new(10, 540),
-            1.0,
-            cv::RGB::new(128, 128, 128),
-            1,
-        );
+        image.draw_text(&desc, &cv::Point::new(10, 540), 1.0, cv::RGB::new(128, 128, 128), 1);
 
         match gui.show_for(&image, Duration::from_millis(500))? {
             '1' => color_range = &blue_color_range,

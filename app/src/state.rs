@@ -1,8 +1,5 @@
 use crate::prelude::*;
-use std::{
-    time::Instant,
-    collections::VecDeque,
-};
+use std::{collections::VecDeque, time::Instant};
 
 #[derive(Debug)]
 pub struct State {
@@ -29,7 +26,6 @@ impl State {
     }
 
     pub fn next(mut self, frame: cv::Mat<cv::BGR>) -> Self {
-
         let cfg = self.cfg.clone();
         let mut history = std::mem::take(&mut self.history);
         history.push_front(self);
@@ -60,7 +56,6 @@ impl State {
         Ok(())
     }
 
-
     pub fn puck_speed(&self) -> Option<PuckSpeed> {
         let puck = self.puck?;
         let old_state = self.history.iter().find(|s| s.puck.is_some())?;
@@ -79,4 +74,3 @@ impl State {
     //     }
     // }
 }
-

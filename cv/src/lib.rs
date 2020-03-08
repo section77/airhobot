@@ -13,11 +13,11 @@ pub mod videoio;
 
 pub mod prelude {
     pub use crate::gui::{MouseEvent, MouseEvents};
+    pub use crate::mat::convert_color::ConvertColor;
+    pub use crate::mat::draw::Draw;
+    pub use crate::mat::filter::Filter;
     pub use crate::mat::FindContours;
     pub use crate::mat::InRange;
-    pub use crate::mat::convert_color::ConvertColor;
-    pub use crate::mat::filter::Filter;
-    pub use crate::mat::draw::Draw;
 }
 
 pub use crate::colors::*;

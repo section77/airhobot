@@ -1,7 +1,13 @@
 use crate::prelude::*;
 use log::info;
 use serde::{Deserialize, Serialize};
-use std::{fs, ops::Range, path::PathBuf, net::SocketAddrV4, sync::{Arc, RwLock}};
+use std::{
+    fs,
+    net::SocketAddrV4,
+    ops::Range,
+    path::PathBuf,
+    sync::{Arc, RwLock},
+};
 
 ///
 pub type Cfg = Arc<RwLock<Config>>;
@@ -14,7 +20,6 @@ pub struct Config {
     pub puck: Detector,
     pub driver: Driver,
 }
-
 
 impl Config {
     pub fn load<P>(path: P) -> Result<Self>
@@ -140,7 +145,6 @@ impl Detector {
         Ok(color_range)
     }
 }
-
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Driver {

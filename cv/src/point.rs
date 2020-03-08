@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::{ops::Sub, fmt};
+use std::{fmt, ops::Sub};
 
 /// Point in an 2D environment
 #[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize, Default)]

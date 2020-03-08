@@ -1,4 +1,4 @@
-use crate::{prelude::*, Mat, Point, Rect, ToOpencvScalar, Contours};
+use crate::{prelude::*, Contours, Mat, Point, Rect, ToOpencvScalar};
 use opencv::prelude::Vector;
 
 pub trait Draw {
@@ -114,5 +114,4 @@ impl<T> Draw for Mat<T> {
         )
         .expect("unable to draw_arrowed_line");
     }
-
 }

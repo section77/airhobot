@@ -4,7 +4,6 @@ use opencv::{
     imgproc::ColorConversionCodes::{self, *},
 };
 
-
 pub trait ConvertColor<To> {
     fn convert_color(&self) -> Mat<To>;
 }

@@ -31,7 +31,7 @@ impl<T> Filter for Mat<T> {
             opencv::core::Size::new(ksize, ksize),
             opencv::core::Point::new(-1, -1),
         )
-            .unwrap();
+        .unwrap();
         let anchor = opencv::core::Point::new(-1, -1);
         let iterations = 1;
         // https://docs.opencv.org/4.2.0/d2/de8/group__core__array.html#ga209f2f4869e304c82d07739337eae7c5
@@ -46,7 +46,7 @@ impl<T> Filter for Mat<T> {
             border_type,
             border_value,
         )
-            .expect("erode");
+        .expect("erode");
     }
 
     fn dilate(&mut self, ksize: i32) {
@@ -61,7 +61,7 @@ impl<T> Filter for Mat<T> {
             opencv::core::Size::new(ksize, ksize),
             opencv::core::Point::new(-1, -1),
         )
-            .unwrap();
+        .unwrap();
         let anchor = opencv::core::Point::new(-1, -1);
         let iterations = 1;
         // https://docs.opencv.org/4.2.0/d2/de8/group__core__array.html#ga209f2f4869e304c82d07739337eae7c5
@@ -76,7 +76,6 @@ impl<T> Filter for Mat<T> {
             border_type,
             border_value,
         )
-            .expect("dilate");
+        .expect("dilate");
     }
 }
-
