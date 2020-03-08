@@ -1,4 +1,4 @@
-use opencv::{prelude::Vector};
+use opencv::prelude::Vector;
 
 //pub mod cam;
 pub mod colors;
@@ -12,24 +12,25 @@ pub mod rect;
 pub mod videoio;
 
 pub mod prelude {
+    pub use crate::gui::{MouseEvent, MouseEvents};
     pub use crate::mat::FindContours;
     pub use crate::mat::InRange;
-    pub use crate::mat::ToHSV;
-    pub use crate::gui::{MouseEvents, MouseEvent};
+    pub use crate::mat::convert_color::ConvertColor;
+    pub use crate::mat::filter::Filter;
+    pub use crate::mat::draw::Draw;
 }
 
 pub use crate::colors::*;
 pub use crate::contour::*;
 pub use crate::error::*;
-pub use crate::gui::GUI;
 pub use crate::gui::mouse_events::*;
+pub use crate::gui::GUI;
 pub use crate::imageio::imread;
 pub use crate::mat::Mat;
 pub use crate::point::*;
 pub use crate::prelude::*;
 pub use crate::rect::*;
 pub use crate::videoio::{VideoCapture, VideoWriter};
-
 
 type Result<T> = std::result::Result<T, Error>;
 

@@ -48,7 +48,7 @@ fn run() -> Result<()> {
         state.crop_frame()?;
         state.apply_filter_frame()?;
 
-        let frame_hsv = state.frame.to_hsv()?;
+        let frame_hsv = state.frame.convert_color();
         state.puck = {
             let puck_contours = detect("puck", &state.cfg.read()?.puck, &frame_hsv)?;
             state.frame.draw_contours(&puck_contours, cv::RGB::white(), 2);
@@ -166,11 +166,12 @@ fn move_pusher(state: &State, gui: &cv::GUI) -> Result<()> {
 
                 let tx = (m1 - ((pusher.x() + pusher.y()) as f32 * factor)) as i32;
                 let ty = (m2 - ((pusher.x() - pusher.y()) as f32 * factor)) as i32;
-                let payload = format!("{}:{}", tx, ty);
+                let driver_cfg = &state.cfg.read()?.driver;
+                let payload = format!("{}:{}:{}:{}", tx, ty, driver_cfg.delay, driver_cfg.factor);
                 info!("send payload: {}", payload);
                 let socket = UdpSocket::bind("0.0.0.0:6789")?;
                 socket
-                    .send_to(payload.as_bytes(), state.cfg.read()?.driver.addr)?;
+                    .send_to(payload.as_bytes(), driver_cfg.addr)?;
                 gui.show_for(&frame, Duration::from_millis(1000))?;
                 return Ok(())
             } else {

@@ -9,6 +9,9 @@ pub use hsv::*;
 pub use hsv_range::*;
 pub use rgb::*;
 
+#[derive(Debug)]
+pub struct Gray;
+
 pub trait ToOpencvScalar {
     fn to_opencv_scalar(&self) -> OpencvScalar;
 }
